@@ -1,3 +1,1 @@
 # Pebble Watchface Boilderplate #
-
-
