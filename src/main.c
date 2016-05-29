@@ -3,6 +3,7 @@
 static Window *s_main_window;
 static TextLayer *s_time_layer;
 static TextLayer *s_battery_layer;
+static TextLayer *s_bluetooth_layer;
 
 static void update_time() {
 
@@ -28,14 +29,18 @@ static void handle_battery(BatteryChargeState charge_state) {
 
 	// Change battery text layer if in charge, otherwise change battery percentage
 	if (charge_state.is_charging) {
-		snprintf(battery_text, sizeof(battery_text), "charging");
+		snprintf(battery_text, sizeof(battery_text), "Charging");
 	}
 	else {
-		snprintf(battery_text, sizeof(battery_text), "%d%% charged", charge_state.charge_percent);
+		snprintf(battery_text, sizeof(battery_text), "%d%% Charged", charge_state.charge_percent);
 	}
 
 	// Update battery layer
 	text_layer_set_text(s_battery_layer, battery_text);
+}
+
+static void handle_bluetooth(bool connected) {
+	APP_LOG(APP_LOG_LEVEL_INFO, "Bluetooth %sconnected", connected ? "" : "dis");
 }
 
 static void setup_time_layers() {
@@ -77,7 +82,7 @@ static void setup_battery_layer() {
 	// Style the TextLayer
 	text_layer_set_background_color(s_battery_layer, GColorClear);
 	text_layer_set_text_color(s_battery_layer, GColorWhite);
-	text_layer_set_text(s_battery_layer, "100% charged");
+	text_layer_set_text(s_battery_layer, "100% Charged");
 	text_layer_set_font(s_battery_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
 	text_layer_set_text_alignment(s_battery_layer, GTextAlignmentCenter);
 
@@ -88,24 +93,54 @@ static void setup_battery_layer() {
 	handle_battery(battery_state_service_peek());
 }
 
+static void setup_bluetooth_layer() {
+
+	// Get information about the window
+	Layer *window_layer = window_get_root_layer(s_main_window);
+	GRect bounds = layer_get_bounds(window_layer);
+
+	// Create the TextLayer with specific bounds
+	s_bluetooth_layer = text_layer_create(
+		GRect(0, PBL_IF_ROUND_ELSE(104, 96), bounds.size.w, 94));
+
+	// Style the TextLayer
+	text_layer_set_background_color(s_bluetooth_layer, GColorClear);
+	text_layer_set_text_color(s_bluetooth_layer, GColorWhite);
+	text_layer_set_text(s_bluetooth_layer, "Bluetooth Connected");
+	text_layer_set_font(s_bluetooth_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+	text_layer_set_text_alignment(s_bluetooth_layer, GTextAlignmentCenter);
+
+	// Add it as child layer to the Window's root layer
+	layer_add_child(window_layer, text_layer_get_layer(s_bluetooth_layer));
+
+	// Update initial battery
+	handle_bluetooth(connection_service_peek_pebble_app_connection());
+}
+
 static void main_window_load(Window *window) {
 
 	/**
 	 * Set Window background color
 	 * https://developer.pebble.com/guides/tools-and-resources/color-picker/
 	 */
-	window_set_background_color(window, GColorSunsetOrange);
+	window_set_background_color(window, GColorBlack);
 
 	// Setup time/date/battery layers
 	setup_time_layers();
 	setup_date_layers();
 	setup_battery_layer();
+	setup_bluetooth_layer();
 
 	// Register TickTimerService
 	tick_timer_service_subscribe(SECOND_UNIT, handle_second_tick);
 
 	// Register BatteryStateService
 	battery_state_service_subscribe(handle_battery);
+
+	//Register ConnectionService
+	connection_service_subscribe((ConnectionHandlers) {
+		.pebble_app_connection_handler = handle_bluetooth
+	});
 }
 
 static void main_window_unload(Window *window) {
@@ -116,9 +151,13 @@ static void main_window_unload(Window *window) {
 	// Unregister BatteryStateService
 	battery_state_service_unsubscribe();
 
+	// Unregister ConnectionService
+	bluetooth_connection_service_unsubscribe();
+
 	// Destroy TextLayers
 	text_layer_destroy(s_time_layer);
 	text_layer_destroy(s_battery_layer);
+	text_layer_destroy(s_bluetooth_layer);
 }
 
 static void init() {
