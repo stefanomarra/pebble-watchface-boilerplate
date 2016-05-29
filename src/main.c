@@ -52,7 +52,7 @@ static void update_hands_proc(Layer *layer, GContext *ctx) {
 	GRect bounds = layer_get_bounds(layer);
 	GPoint center = grect_center_point(&bounds);
 	int16_t second_hand_length = bounds.size.w / 2 - 5;
-	int16_t second_hand_tail_length = 12;
+	int16_t second_hand_tail_length = 15;
 
 	time_t now = time(NULL);
 	struct tm *t = localtime(&now);
@@ -85,9 +85,14 @@ static void update_hands_proc(Layer *layer, GContext *ctx) {
 		graphics_draw_line(ctx, second_hand_tail, center);
 	}
 
-	// Dot in the middle
+	// Draw the dot in the middle
 	graphics_context_set_fill_color(ctx, GColorRed);
 	graphics_fill_circle(ctx, GPoint(bounds.size.w / 2, bounds.size.h / 2), 4);
+
+	// Draw the dot stroke
+	graphics_context_set_stroke_color(ctx, GColorBlack);
+	graphics_context_set_stroke_width(ctx, 2);
+	graphics_draw_circle(ctx, GPoint(bounds.size.w / 2, bounds.size.h / 2), 6);
 }
 
 static void handle_second_tick(struct tm *tick_time, TimeUnits units_changed) {
@@ -133,13 +138,13 @@ static void setup_time_layers() {
 
 	// Create the TextLayer with specific bounds
 	s_time_layer = text_layer_create(
-		GRect(0, PBL_IF_ROUND_ELSE(50, 44), bounds.size.w, 42));
+		GRect(0, PBL_IF_ROUND_ELSE(30, 24), bounds.size.w, 26));
 
 	// Improve the layout to be more like a watchface
 	text_layer_set_background_color(s_time_layer, GColorClear);
 	text_layer_set_text_color(s_time_layer, GColorWhite);
 	text_layer_set_text(s_time_layer, "--:--");
-	text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+	text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
 	text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
 
 	// Add it as a child layer to the Window's root layer
@@ -157,7 +162,7 @@ static void setup_date_layers() {
 
 	// Create the TextLayer with specific bounds
 	s_date_layer = text_layer_create(
-		GRect(0, PBL_IF_ROUND_ELSE(96, 90), bounds.size.w, 88));
+		GRect(0, PBL_IF_ROUND_ELSE(106, 100), bounds.size.w, 16));
 
 	// Style the TextLayer
 	text_layer_set_background_color(s_date_layer, GColorClear);
@@ -181,7 +186,7 @@ static void setup_battery_layer() {
 
 	// Create the TextLayer with specific bounds
 	s_battery_layer = text_layer_create(
-		GRect(0, PBL_IF_ROUND_ELSE(112, 106), bounds.size.w, 104));
+		GRect(0, PBL_IF_ROUND_ELSE(122, 116), bounds.size.w, 16));
 
 	// Style the TextLayer
 	text_layer_set_background_color(s_battery_layer, GColorClear);
@@ -205,7 +210,7 @@ static void setup_bluetooth_layer() {
 
 	// Create the TextLayer with specific bounds
 	s_bluetooth_layer = text_layer_create(
-		GRect(0, PBL_IF_ROUND_ELSE(128, 122), bounds.size.w, 120));
+		GRect(0, PBL_IF_ROUND_ELSE(138, 132), bounds.size.w, 16));
 
 	// Style the TextLayer
 	text_layer_set_background_color(s_bluetooth_layer, GColorClear);
