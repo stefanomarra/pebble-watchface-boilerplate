@@ -2,6 +2,7 @@
 
 static Window *s_main_window;
 static TextLayer *s_time_layer;
+static TextLayer *s_date_layer;
 static TextLayer *s_battery_layer;
 static TextLayer *s_bluetooth_layer;
 
@@ -17,7 +18,19 @@ static void update_time() {
 
 	// Display this time on the TextLayer
 	text_layer_set_text(s_time_layer, time_text);
+}
+static void update_date() {
 
+	// Get a tm structure
+	time_t temp = time(NULL);
+	struct tm *tick_time = localtime(&temp);
+
+	// Write the current date into a buffer
+	static char date_text[16];
+	strftime(date_text, sizeof(date_text), "%a %d %b", tick_time);
+
+	// Display this date on the TextLayer
+	text_layer_set_text(s_date_layer, date_text);
 }
 
 static void handle_second_tick(struct tm *tick_time, TimeUnits units_changed) {
@@ -67,7 +80,29 @@ static void setup_time_layers() {
 	update_time();
 }
 
-static void setup_date_layers() {}
+static void setup_date_layers() {
+
+	//Get window information
+	Layer *window_layer = window_get_root_layer(s_main_window);
+	GRect bounds =layer_get_bounds(window_layer);
+
+	// Create the TextLayer with specific bounds
+	s_date_layer = text_layer_create(
+		GRect(0, PBL_IF_ROUND_ELSE(88, 82), bounds.size.w, 80));
+
+	// Style the TextLayer
+	text_layer_set_background_color(s_date_layer, GColorClear);
+	text_layer_set_text_color(s_date_layer, GColorWhite);
+	text_layer_set_text(s_date_layer, "--");
+	text_layer_set_font(s_date_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+	text_layer_set_text_alignment(s_date_layer, GTextAlignmentCenter);
+
+	// Add it as child layer to the Window's root layer
+	layer_add_child(window_layer, text_layer_get_layer(s_date_layer));
+
+	// Update initial date
+	update_date();
+}
 
 static void setup_battery_layer() {
 
@@ -77,7 +112,7 @@ static void setup_battery_layer() {
 
 	// Create the TextLayer with specific bounds
 	s_battery_layer = text_layer_create(
-		GRect(0, PBL_IF_ROUND_ELSE(88, 82), bounds.size.w, 80));
+		GRect(0, PBL_IF_ROUND_ELSE(104, 98), bounds.size.w, 96));
 
 	// Style the TextLayer
 	text_layer_set_background_color(s_battery_layer, GColorClear);
@@ -101,7 +136,7 @@ static void setup_bluetooth_layer() {
 
 	// Create the TextLayer with specific bounds
 	s_bluetooth_layer = text_layer_create(
-		GRect(0, PBL_IF_ROUND_ELSE(104, 96), bounds.size.w, 94));
+		GRect(0, PBL_IF_ROUND_ELSE(120, 114), bounds.size.w, 112));
 
 	// Style the TextLayer
 	text_layer_set_background_color(s_bluetooth_layer, GColorClear);
@@ -156,6 +191,7 @@ static void main_window_unload(Window *window) {
 
 	// Destroy TextLayers
 	text_layer_destroy(s_time_layer);
+	text_layer_destroy(s_date_layer);
 	text_layer_destroy(s_battery_layer);
 	text_layer_destroy(s_bluetooth_layer);
 }
