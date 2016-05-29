@@ -1,0 +1,19 @@
+{
+  "uuid": "ec97d900-aab3-4016-a720-29446ed9a30a",
+  "shortName": "pebble-watchface-boilerplate",
+  "longName": "pebble-watchface-boilerplate",
+  "companyName": "Stefano Marra",
+  "versionLabel": "1.0",
+  "sdkVersion": "3",
+  "targetPlatforms": ["aplite", "basalt", "chalk"],
+  "enableMultiJS": true,
+  "watchapp": {
+    "watchface": true
+  },
+  "appKeys": {
+    "dummy": 0
+  },
+  "resources": {
+    "media": []
+  }
+}
