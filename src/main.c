@@ -92,7 +92,7 @@ static void update_hands_proc(Layer *layer, GContext *ctx) {
 
 static void handle_second_tick(struct tm *tick_time, TimeUnits units_changed) {
 	update_time();
-
+	update_date();
 	layer_mark_dirty(window_get_root_layer(s_main_window));
 }
 
