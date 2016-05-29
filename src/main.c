@@ -105,6 +105,14 @@ static void handle_battery(BatteryChargeState charge_state) {
 	}
 	else {
 		snprintf(battery_text, sizeof(battery_text), "%d%% Charged", charge_state.charge_percent);
+
+		// If battery percent is below 20 set text color to red
+		if (charge_state.charge_percent <= 20) {
+			text_layer_set_text_color(s_battery_layer, GColorRed);
+		}
+		else {
+			text_layer_set_text_color(s_battery_layer, GColorLightGray);
+		}
 	}
 
 	// Update battery layer
