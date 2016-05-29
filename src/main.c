@@ -52,7 +52,7 @@ static void setup_time_layers() {
 	text_layer_set_background_color(s_time_layer, GColorClear);
 	text_layer_set_text_color(s_time_layer, GColorWhite);
 	text_layer_set_text(s_time_layer, "--:--:--");
-	text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_LECO_28_LIGHT_NUMBERS));
+	text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
 	text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
 
 	// Add it as a child layer to the Window's root layer
@@ -78,7 +78,7 @@ static void setup_battery_layer() {
 	text_layer_set_background_color(s_battery_layer, GColorClear);
 	text_layer_set_text_color(s_battery_layer, GColorWhite);
 	text_layer_set_text(s_battery_layer, "100% charged");
-	text_layer_set_font(s_battery_layer, fonts_get_system_font(FONT_KEY_LECO_20_BOLD_NUMBERS));
+	text_layer_set_font(s_battery_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
 	text_layer_set_text_alignment(s_battery_layer, GTextAlignmentCenter);
 
 	// Add it as child layer to the Window's root layer
@@ -110,14 +110,15 @@ static void main_window_load(Window *window) {
 
 static void main_window_unload(Window *window) {
 
-	// Destroy TextLayer
-	text_layer_destroy(s_time_layer);
-
 	// Unregister TickTimerService
 	tick_timer_service_unsubscribe();
 
 	// Unregister BatteryStateService
 	battery_state_service_unsubscribe();
+
+	// Destroy TextLayers
+	text_layer_destroy(s_time_layer);
+	text_layer_destroy(s_battery_layer);
 }
 
 static void init() {
