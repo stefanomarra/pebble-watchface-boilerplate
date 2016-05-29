@@ -1,10 +1,24 @@
 #include <pebble.h>
+#include <main.h>
+
+
 
 static Window *s_main_window;
+
 static TextLayer *s_time_layer;
 static TextLayer *s_date_layer;
 static TextLayer *s_battery_layer;
 static TextLayer *s_bluetooth_layer;
+
+static Layer *s_hands_layer;
+
+static GPath *s_hour_arrow;
+static GPath *s_minute_arrow;
+
+static bool b_show_hands       = true;
+static bool b_show_second_hand = true;
+static bool b_show_battery     = true;
+static bool b_show_bluetooth   = true;
 
 static void update_time() {
 
@@ -35,6 +49,8 @@ static void update_date() {
 
 static void handle_second_tick(struct tm *tick_time, TimeUnits units_changed) {
 	update_time();
+
+	layer_mark_dirty(window_get_root_layer(s_main_window));
 }
 
 static void handle_battery(BatteryChargeState charge_state) {
@@ -56,6 +72,49 @@ static void handle_bluetooth(bool connected) {
 	APP_LOG(APP_LOG_LEVEL_INFO, "Bluetooth %sconnected", connected ? "" : "dis");
 }
 
+static void update_hands_proc(Layer *layer, GContext *ctx) {
+
+	GRect bounds = layer_get_bounds(layer);
+	GPoint center = grect_center_point(&bounds);
+	int16_t second_hand_length = bounds.size.w / 2 - 5;
+	int16_t second_hand_tail_length = 12;
+
+	time_t now = time(NULL);
+	struct tm *t = localtime(&now);
+	int32_t second_angle = TRIG_MAX_ANGLE * t->tm_sec / 60;
+	int32_t second_angle_tail = TRIG_MAX_ANGLE * (t->tm_sec + 30) / 60;
+
+	GPoint second_hand = {
+		.x = (int16_t)(sin_lookup(second_angle) * (int32_t)second_hand_length / TRIG_MAX_RATIO) + center.x,
+		.y = (int16_t)(-cos_lookup(second_angle) * (int32_t)second_hand_length / TRIG_MAX_RATIO) + center.y,
+	};
+	GPoint second_hand_tail = {
+		.x = (int16_t)(sin_lookup(second_angle_tail) * (int32_t)second_hand_tail_length / TRIG_MAX_RATIO) + center.x,
+		.y = (int16_t)(-cos_lookup(second_angle_tail) * (int32_t)second_hand_tail_length / TRIG_MAX_RATIO) + center.y,
+	};
+
+	// Minute hand
+	graphics_context_set_fill_color(ctx, GColorRed);
+	gpath_rotate_to(s_minute_arrow, TRIG_MAX_ANGLE * t->tm_min / 60);
+	gpath_draw_filled(ctx, s_minute_arrow);
+
+	// Hour hand
+	graphics_context_set_fill_color(ctx, GColorRed);
+	gpath_rotate_to(s_hour_arrow, (TRIG_MAX_ANGLE * (((t->tm_hour % 12) * 6) + (t->tm_min / 10))) / (12 * 6));
+	gpath_draw_filled(ctx, s_hour_arrow);
+
+	// Second hand
+	if (b_show_second_hand) {
+		graphics_context_set_stroke_color(ctx, GColorRed);
+		graphics_draw_line(ctx, second_hand, center);
+		graphics_draw_line(ctx, second_hand_tail, center);
+	}
+
+	// Dot in the middle
+	graphics_context_set_fill_color(ctx, GColorRed);
+	graphics_fill_circle(ctx, GPoint(bounds.size.w / 2, bounds.size.h / 2), 4);
+}
+
 static void setup_time_layers() {
 
 	// Get information about the Window
@@ -64,7 +123,7 @@ static void setup_time_layers() {
 
 	// Create the TextLayer with specific bounds
 	s_time_layer = text_layer_create(
-		GRect(0, PBL_IF_ROUND_ELSE(58, 52), bounds.size.w, 50));
+		GRect(0, PBL_IF_ROUND_ELSE(50, 44), bounds.size.w, 42));
 
 	// Improve the layout to be more like a watchface
 	text_layer_set_background_color(s_time_layer, GColorClear);
@@ -88,7 +147,7 @@ static void setup_date_layers() {
 
 	// Create the TextLayer with specific bounds
 	s_date_layer = text_layer_create(
-		GRect(0, PBL_IF_ROUND_ELSE(88, 82), bounds.size.w, 80));
+		GRect(0, PBL_IF_ROUND_ELSE(96, 90), bounds.size.w, 88));
 
 	// Style the TextLayer
 	text_layer_set_background_color(s_date_layer, GColorClear);
@@ -112,7 +171,7 @@ static void setup_battery_layer() {
 
 	// Create the TextLayer with specific bounds
 	s_battery_layer = text_layer_create(
-		GRect(0, PBL_IF_ROUND_ELSE(104, 98), bounds.size.w, 96));
+		GRect(0, PBL_IF_ROUND_ELSE(112, 106), bounds.size.w, 104));
 
 	// Style the TextLayer
 	text_layer_set_background_color(s_battery_layer, GColorClear);
@@ -136,7 +195,7 @@ static void setup_bluetooth_layer() {
 
 	// Create the TextLayer with specific bounds
 	s_bluetooth_layer = text_layer_create(
-		GRect(0, PBL_IF_ROUND_ELSE(120, 114), bounds.size.w, 112));
+		GRect(0, PBL_IF_ROUND_ELSE(128, 122), bounds.size.w, 120));
 
 	// Style the TextLayer
 	text_layer_set_background_color(s_bluetooth_layer, GColorClear);
@@ -152,6 +211,27 @@ static void setup_bluetooth_layer() {
 	handle_bluetooth(connection_service_peek_pebble_app_connection());
 }
 
+static void setup_hands_layer() {
+
+	// Get information about the window
+	Layer *window_layer = window_get_root_layer(s_main_window);
+	GRect bounds = layer_get_bounds(window_layer);
+	GPoint center = grect_center_point(&bounds);
+
+	// Create hour arrow
+	s_hour_arrow = gpath_create(&HOUR_HAND_POINTS);
+	gpath_move_to(s_hour_arrow, center);
+
+	// Create minute arrow
+	s_minute_arrow = gpath_create(&MINUTE_HAND_POINTS);
+	gpath_move_to(s_minute_arrow, center);
+
+	// Create the Layer with specific bounds
+	s_hands_layer = layer_create(bounds);
+	layer_set_update_proc(s_hands_layer, update_hands_proc);
+	layer_add_child(window_layer, s_hands_layer);
+}
+
 static void main_window_load(Window *window) {
 
 	/**
@@ -160,22 +240,25 @@ static void main_window_load(Window *window) {
 	 */
 	window_set_background_color(window, GColorBlack);
 
-	// Setup time/date/battery layers
+	// Setup layers
 	setup_time_layers();
 	setup_date_layers();
-	setup_battery_layer();
-	setup_bluetooth_layer();
+	if (b_show_battery) setup_battery_layer();
+	if (b_show_bluetooth) setup_bluetooth_layer();
+	if (b_show_hands) setup_hands_layer();
 
 	// Register TickTimerService
 	tick_timer_service_subscribe(SECOND_UNIT, handle_second_tick);
 
 	// Register BatteryStateService
-	battery_state_service_subscribe(handle_battery);
+	if (b_show_battery) battery_state_service_subscribe(handle_battery);
 
 	//Register ConnectionService
-	connection_service_subscribe((ConnectionHandlers) {
-		.pebble_app_connection_handler = handle_bluetooth
-	});
+	if (b_show_bluetooth) {
+		connection_service_subscribe((ConnectionHandlers) {
+			.pebble_app_connection_handler = handle_bluetooth
+		});
+	}
 }
 
 static void main_window_unload(Window *window) {
@@ -184,16 +267,23 @@ static void main_window_unload(Window *window) {
 	tick_timer_service_unsubscribe();
 
 	// Unregister BatteryStateService
-	battery_state_service_unsubscribe();
+	if (b_show_battery) battery_state_service_unsubscribe();
 
 	// Unregister ConnectionService
-	bluetooth_connection_service_unsubscribe();
+	if (b_show_bluetooth) bluetooth_connection_service_unsubscribe();
 
 	// Destroy TextLayers
 	text_layer_destroy(s_time_layer);
 	text_layer_destroy(s_date_layer);
-	text_layer_destroy(s_battery_layer);
-	text_layer_destroy(s_bluetooth_layer);
+	if (b_show_battery) text_layer_destroy(s_battery_layer);
+	if (b_show_bluetooth) text_layer_destroy(s_bluetooth_layer);
+
+	// Destroy GPaths
+	if (b_show_hands) gpath_destroy(s_hour_arrow);
+	if (b_show_hands) gpath_destroy(s_minute_arrow);
+
+	// Destroy Layers
+	if (b_show_hands) layer_destroy(s_hands_layer);
 }
 
 static void init() {
