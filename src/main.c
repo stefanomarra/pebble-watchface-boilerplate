@@ -47,31 +47,6 @@ static void update_date() {
 	text_layer_set_text(s_date_layer, date_text);
 }
 
-static void handle_second_tick(struct tm *tick_time, TimeUnits units_changed) {
-	update_time();
-
-	layer_mark_dirty(window_get_root_layer(s_main_window));
-}
-
-static void handle_battery(BatteryChargeState charge_state) {
-	static char battery_text[] = "100% charged";
-
-	// Change battery text layer if in charge, otherwise change battery percentage
-	if (charge_state.is_charging) {
-		snprintf(battery_text, sizeof(battery_text), "Charging");
-	}
-	else {
-		snprintf(battery_text, sizeof(battery_text), "%d%% Charged", charge_state.charge_percent);
-	}
-
-	// Update battery layer
-	text_layer_set_text(s_battery_layer, battery_text);
-}
-
-static void handle_bluetooth(bool connected) {
-	APP_LOG(APP_LOG_LEVEL_INFO, "Bluetooth %sconnected", connected ? "" : "dis");
-}
-
 static void update_hands_proc(Layer *layer, GContext *ctx) {
 
 	GRect bounds = layer_get_bounds(layer);
@@ -113,6 +88,31 @@ static void update_hands_proc(Layer *layer, GContext *ctx) {
 	// Dot in the middle
 	graphics_context_set_fill_color(ctx, GColorRed);
 	graphics_fill_circle(ctx, GPoint(bounds.size.w / 2, bounds.size.h / 2), 4);
+}
+
+static void handle_second_tick(struct tm *tick_time, TimeUnits units_changed) {
+	update_time();
+
+	layer_mark_dirty(window_get_root_layer(s_main_window));
+}
+
+static void handle_battery(BatteryChargeState charge_state) {
+	static char battery_text[] = "100% charged";
+
+	// Change battery text layer if in charge, otherwise change battery percentage
+	if (charge_state.is_charging) {
+		snprintf(battery_text, sizeof(battery_text), "Charging");
+	}
+	else {
+		snprintf(battery_text, sizeof(battery_text), "%d%% Charged", charge_state.charge_percent);
+	}
+
+	// Update battery layer
+	text_layer_set_text(s_battery_layer, battery_text);
+}
+
+static void handle_bluetooth(bool connected) {
+	APP_LOG(APP_LOG_LEVEL_INFO, "Bluetooth %sconnected", connected ? "" : "dis");
 }
 
 static void setup_time_layers() {
