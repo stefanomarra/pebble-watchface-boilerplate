@@ -1,6 +1,6 @@
 # Pebble Watchface Boilderplate #
 
-A simple boilerplate to help you get up and running you Pebble Watchface project. Works with all Pebble devices
+A simple boilerplate to help you get up and running you Pebble Watchface project.
 
 ### Available Layers ###
 
