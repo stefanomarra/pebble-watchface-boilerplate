@@ -8,5 +8,6 @@ Following layers are handled in setup functions:
 
 * Time Layer
 * Date Layer
+* Hands Layer
 * Battery Layer
 * Connection Layer (Bluetooth)
