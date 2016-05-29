@@ -28,7 +28,7 @@ static void update_time() {
 
 	// Write the current hours and minutes into a buffer
 	static char time_text[10];
-	strftime(time_text, sizeof(time_text), clock_is_24h_style() ? "%H:%M:%S" : "%I:%M:%S", tick_time);
+	strftime(time_text, sizeof(time_text), clock_is_24h_style() ? "%H:%M" : "%I:%M", tick_time);
 
 	// Display this time on the TextLayer
 	text_layer_set_text(s_time_layer, time_text);
@@ -128,7 +128,7 @@ static void setup_time_layers() {
 	// Improve the layout to be more like a watchface
 	text_layer_set_background_color(s_time_layer, GColorClear);
 	text_layer_set_text_color(s_time_layer, GColorWhite);
-	text_layer_set_text(s_time_layer, "--:--:--");
+	text_layer_set_text(s_time_layer, "--:--");
 	text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
 	text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
 
@@ -175,7 +175,7 @@ static void setup_battery_layer() {
 
 	// Style the TextLayer
 	text_layer_set_background_color(s_battery_layer, GColorClear);
-	text_layer_set_text_color(s_battery_layer, GColorWhite);
+	text_layer_set_text_color(s_battery_layer, GColorLightGray);
 	text_layer_set_text(s_battery_layer, "100% Charged");
 	text_layer_set_font(s_battery_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
 	text_layer_set_text_alignment(s_battery_layer, GTextAlignmentCenter);
@@ -199,7 +199,7 @@ static void setup_bluetooth_layer() {
 
 	// Style the TextLayer
 	text_layer_set_background_color(s_bluetooth_layer, GColorClear);
-	text_layer_set_text_color(s_bluetooth_layer, GColorWhite);
+	text_layer_set_text_color(s_bluetooth_layer, GColorLightGray);
 	text_layer_set_text(s_bluetooth_layer, "Bluetooth Connected");
 	text_layer_set_font(s_bluetooth_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
 	text_layer_set_text_alignment(s_bluetooth_layer, GTextAlignmentCenter);
