@@ -102,6 +102,8 @@ static void handle_battery(BatteryChargeState charge_state) {
 	// Change battery text layer if in charge, otherwise change battery percentage
 	if (charge_state.is_charging) {
 		snprintf(battery_text, sizeof(battery_text), "Charging");
+
+		text_layer_set_text_color(s_battery_layer, GColorLightGray);
 	}
 	else {
 		snprintf(battery_text, sizeof(battery_text), "%d%% Charged", charge_state.charge_percent);
