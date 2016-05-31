@@ -1,7 +1,16 @@
 #include <pebble.h>
 #include <main.h>
 
-
+#define KEY_COLOR_BACKGROUND  0
+#define KEY_COLOR_TIME        1
+#define KEY_COLOR_DATE        2
+#define KEY_COLOR_HOUR_HAND   3
+#define KEY_COLOR_MINUTE_HAND 4
+#define KEY_COLOR_SECOND_HAND 5
+#define KEY_SHOW_HANDS        6
+#define KEY_SHOW_SECOND_HAND  7
+#define KEY_SHOW_TIME         8
+#define KEY_SHOW_DATE         9
 
 static Window *s_main_window;
 
@@ -19,6 +28,70 @@ static bool b_show_hands       = true;
 static bool b_show_second_hand = true;
 static bool b_show_battery     = true;
 static bool b_show_bluetooth   = true;
+
+static GColor gcolor_background;
+static GColor gcolor_time;
+static GColor gcolor_date;
+static GColor gcolor_hour_hand;
+static GColor gcolor_minute_hand;
+static GColor gcolor_second_hand;
+
+static void load_persisted_values() {
+
+	// Background Color
+	if (persist_exists(KEY_COLOR_BACKGROUND)) {
+		int color_hex = persist_read_int(KEY_COLOR_BACKGROUND);
+		gcolor_background = GColorFromHEX(color_hex);
+	}
+	else {
+		gcolor_background = GColorBlack;
+	}
+
+	// Time Text Color
+	if (persist_exists(KEY_COLOR_TIME)) {
+		int color_hex = persist_read_int(KEY_COLOR_TIME);
+		gcolor_time = GColorFromHEX(color_hex);
+	}
+	else {
+		gcolor_time = GColorWhite;
+	}
+
+	// Date Text Color
+	if (persist_exists(KEY_COLOR_DATE)) {
+		int color_hex = persist_read_int(KEY_COLOR_DATE);
+		gcolor_date = GColorFromHEX(color_hex);
+	}
+	else {
+		gcolor_date = GColorWhite;
+	}
+
+	// Hour Hand Color
+	if (persist_exists(KEY_COLOR_HOUR_HAND)) {
+		int color_hex = persist_read_int(KEY_COLOR_HOUR_HAND);
+		gcolor_hour_hand = GColorFromHEX(color_hex);
+	}
+	else {
+		gcolor_hour_hand = GColorRed;
+	}
+
+	// Minute Hand Color
+	if (persist_exists(KEY_COLOR_MINUTE_HAND)) {
+		int color_hex = persist_read_int(KEY_COLOR_MINUTE_HAND);
+		gcolor_minute_hand = GColorFromHEX(color_hex);
+	}
+	else {
+		gcolor_minute_hand = GColorRed;
+	}
+
+	// Second Hand Color
+	if (persist_exists(KEY_COLOR_SECOND_HAND)) {
+		int color_hex = persist_read_int(KEY_COLOR_SECOND_HAND);
+		gcolor_second_hand = GColorFromHEX(color_hex);
+	}
+	else {
+		gcolor_second_hand = GColorRed;
+	}
+}
 
 static void update_time() {
 
@@ -69,18 +142,18 @@ static void update_hands_proc(Layer *layer, GContext *ctx) {
 	};
 
 	// Minute hand
-	graphics_context_set_fill_color(ctx, GColorRed);
+	graphics_context_set_fill_color(ctx, gcolor_minute_hand);
 	gpath_rotate_to(s_minute_arrow, TRIG_MAX_ANGLE * t->tm_min / 60);
 	gpath_draw_filled(ctx, s_minute_arrow);
 
 	// Hour hand
-	graphics_context_set_fill_color(ctx, GColorRed);
+	graphics_context_set_fill_color(ctx, gcolor_hour_hand);
 	gpath_rotate_to(s_hour_arrow, (TRIG_MAX_ANGLE * (((t->tm_hour % 12) * 6) + (t->tm_min / 10))) / (12 * 6));
 	gpath_draw_filled(ctx, s_hour_arrow);
 
 	// Second hand
 	if (b_show_second_hand) {
-		graphics_context_set_stroke_color(ctx, GColorRed);
+		graphics_context_set_stroke_color(ctx, gcolor_second_hand);
 		graphics_draw_line(ctx, second_hand, center);
 		graphics_draw_line(ctx, second_hand_tail, center);
 	}
@@ -142,7 +215,7 @@ static void setup_time_layers() {
 
 	// Improve the layout to be more like a watchface
 	text_layer_set_background_color(s_time_layer, GColorClear);
-	text_layer_set_text_color(s_time_layer, GColorWhite);
+	text_layer_set_text_color(s_time_layer, gcolor_time);
 	text_layer_set_text(s_time_layer, "--:--");
 	text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
 	text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
@@ -166,7 +239,7 @@ static void setup_date_layers() {
 
 	// Style the TextLayer
 	text_layer_set_background_color(s_date_layer, GColorClear);
-	text_layer_set_text_color(s_date_layer, GColorWhite);
+	text_layer_set_text_color(s_date_layer, gcolor_date);
 	text_layer_set_text(s_date_layer, "--");
 	text_layer_set_font(s_date_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
 	text_layer_set_text_alignment(s_date_layer, GTextAlignmentCenter);
@@ -249,11 +322,11 @@ static void setup_hands_layer() {
 
 static void main_window_load(Window *window) {
 
-	/**
-	 * Set Window background color
-	 * https://developer.pebble.com/guides/tools-and-resources/color-picker/
-	 */
-	window_set_background_color(window, GColorBlack);
+	// Load persisted values from localstorage
+	load_persisted_values();
+
+	// Set Window background color
+	window_set_background_color(window, gcolor_background);
 
 	// Setup layers
 	setup_time_layers();

@@ -32,25 +32,54 @@
 			<div class="item-container-content">
 				<label class="item">
 					Background Color
-					<input id="background_color_picker" type="text" class="item-color item-color-sunny" value="#000000">
+					<input id="background_color" type="text" class="item-color item-color-sunny" value="#000000">
+				</label>
+				<label class="item">
+					Time Text Color
+					<input id="time_text_color" type="text" class="item-color item-color-sunny" value="#FFFFFF">
+				</label>
+				<label class="item">
+					Date Text Color
+					<input id="date_text_color" type="text" class="item-color item-color-sunny" value="#FFFFFF">
+				</label>
+				<label class="item">
+					Hour Hand Color
+					<input id="hour_hand_color" type="text" class="item-color item-color-sunny" value="#FF0000">
+				</label>
+				<label class="item">
+					Minute Hand Color
+					<input id="minute_hand_color" type="text" class="item-color item-color-sunny" value="#FF0000">
+				</label>
+				<label class="item">
+					Second Hand Color
+					<input id="second_hand_color" type="text" class="item-color item-color-sunny" value="#FF0000">
 				</label>
 			</div>
-			<div class="item-container-footer">
-				Choose the app's background color. Used if High Contrast Mode is not selected. Note: Only available on Basalt watches that support many colors.
-			</div>
+			<div class="item-container-footer"></div>
 		</div>
 
 		<div class="item-container">
-			<div class="item-container-header">Accessibility</div>
+			<div class="item-container-header">Visibility</div>
 			<div class="item-container-content">
 				<label class="item">
-					High Contrast Mode
-					<input id="high_contrast_checkbox" type="checkbox" class="item-toggle">
+					Show Hands
+					<input id="show_hands" type="checkbox" class="item-toggle" checked>
 				</label>
+				<label class="item">
+					Show Second Hand
+					<input id="show_second_hand" type="checkbox" class="item-toggle" checked>
+				</label>
+				<label class="item">
+					Show Time
+					<input id="show_time" type="checkbox" class="item-toggle" checked>
+				</label>
+				<label class="item">
+					Show Date
+					<input id="show_date" type="checkbox" class="item-toggle" checked>
+				</label>
+
 			</div>
-			<div class="item-container-footer">
-				This switches the app colors to a higher contrast set that promotes readability in low light.
-			</div>
+			<div class="item-container-footer"></div>
 		</div>
 
 		<div class="item-container">
@@ -60,19 +89,46 @@
 		</div>
 
 		<script>
+			var background_color  = document.getElementById('background_color');
+			var time_text_color   = document.getElementById('time_text_color');
+			var date_text_color   = document.getElementById('date_text_color');
+			var hour_hand_color   = document.getElementById('hour_hand_color');
+			var minute_hand_color = document.getElementById('minute_hand_color');
+			var second_hand_color = document.getElementById('second_hand_color');
+
+			var show_hands        = document.getElementById('show_hands');
+			var show_second_hand  = document.getElementById('show_second_hand');
+			var show_time         = document.getElementById('show_time');
+			var show_date         = document.getElementById('show_date');
+
 			// Get config data
 			function getConfigData() {
-				var backgroundColorPicker = document.getElementById('background_color_picker');
-				var highContrastCheckbox = document.getElementById('high_contrast_checkbox');
 
 				var options = {
-					'background_color': backgroundColorPicker.value,
-					'high_contrast': highContrastCheckbox.checked
+					'background_color'	: background_color.value,
+					'time_text_color' 	: time_text_color.value,
+					'date_text_color' 	: date_text_color.value,
+					'hour_hand_color' 	: hour_hand_color.value,
+					'minute_hand_color' : minute_hand_color.value,
+					'second_hand_color' : second_hand_color.value,
+					'show_hands'		: show_hands.checked,
+					'show_second_hand' 	: show_second_hand.checked,
+					'show_time' 		: show_time.checked,
+					'show_date' 		: show_date.checked
 				};
 
 				// Save for next launch
-				localStorage['background_color'] = options['background_color'];
-				localStorage['high_contrast'] = options['high_contrast'];
+				localStorage['background_color']  = options['background_color'];
+				localStorage['time_text_color']   = options['time_text_color'];
+				localStorage['date_text_color']   = options['date_text_color'];
+				localStorage['hour_hand_color']   = options['hour_hand_color'];
+				localStorage['minute_hand_color'] = options['minute_hand_color'];
+				localStorage['second_hand_color'] = options['second_hand_color'];
+				localStorage['show_hands']        = options['show_hands'];
+				localStorage['show_second_hand']  = options['show_second_hand'];
+				localStorage['show_time']         = options['show_time'];
+				localStorage['show_date']         = options['show_date'];
+
 				console.log('Got options: ' + JSON.stringify(options));
 				return options;
 			}
@@ -102,12 +158,18 @@
 			});
 
 			(function() {
-				var backgroundColorPicker = document.getElementById('background_color_picker');
-				var highContrastCheckbox = document.getElementById('high_contrast_checkbox');
 				// Load any previously saved configuration, if available
-				if(localStorage['high_contrast']) {
-					highContrastCheckbox.checked = JSON.parse(localStorage['high_contrast']);
-					backgroundColorPicker.value = localStorage['background_color'];
+				if (localStorage['background_color']) {
+					background_color.value   = localStorage['background_color'];
+					time_text_color.value    = localStorage['time_text_color'];
+					date_text_color.value    = localStorage['date_text_color'];
+					hour_hand_color.value    = localStorage['hour_hand_color'];
+					minute_hand_color.value  = localStorage['minute_hand_color'];
+					second_hand_color.value  = localStorage['second_hand_color'];
+					show_hands.checked       = JSON.parse(localStorage['show_hands']);
+					show_second_hand.checked = JSON.parse(localStorage['show_second_hand']);
+					show_time.checked        = JSON.parse(localStorage['show_time']);
+					show_date.checked        = JSON.parse(localStorage['show_date']);
 				}
 			})();
 		</script>
