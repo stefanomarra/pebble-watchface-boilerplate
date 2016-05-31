@@ -13,10 +13,12 @@
 		"configurable"
     ],
 	"appKeys": {
-		"KEY_COLOR_RED": 0,
-		"KEY_COLOR_GREEN": 1,
-		"KEY_COLOR_BLUE": 2,
-		"KEY_HIGH_CONTRAST": 3
+		"KEY_COLOR_BACKGROUND" : 0,
+		"KEY_COLOR_TIME"       : 1,
+		"KEY_COLOR_DATE"       : 2,
+		"KEY_COLOR_HOUR_HAND"  : 3,
+		"KEY_COLOR_MINUTE_HAND": 4,
+		"KEY_COLOR_SECOND_HAND": 5
 	},
 	"resources": {
 		"media": []
