@@ -7,6 +7,10 @@
 #define KEY_COLOR_HOUR_HAND   3
 #define KEY_COLOR_MINUTE_HAND 4
 #define KEY_COLOR_SECOND_HAND 5
+#define KEY_SHOW_HANDS        6
+#define KEY_SHOW_SECOND_HAND  7
+#define KEY_SHOW_TIME         8
+#define KEY_SHOW_DATE         9
 
 static Window *s_main_window;
 

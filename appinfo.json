@@ -18,7 +18,11 @@
 		"KEY_COLOR_DATE"       : 2,
 		"KEY_COLOR_HOUR_HAND"  : 3,
 		"KEY_COLOR_MINUTE_HAND": 4,
-		"KEY_COLOR_SECOND_HAND": 5
+		"KEY_COLOR_SECOND_HAND": 5,
+		"KEY_SHOW_HANDS"       : 6,
+		"KEY_SHOW_SECOND_HAND" : 7,
+		"KEY_SHOW_TIME"        : 8,
+		"KEY_SHOW_DATE"        : 9
 	},
 	"resources": {
 		"media": []
