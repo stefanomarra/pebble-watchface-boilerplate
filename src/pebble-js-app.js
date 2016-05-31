@@ -3,7 +3,7 @@ Pebble.addEventListener('ready', function() {
 });
 
 Pebble.addEventListener('showConfiguration', function() {
-	var url = 'https://rawgit.com/stefanomarra/pebble-watchface-boilerplate/blob/master/config/index.html';
+	var url = 'https://rawgit.com/stefanomarra/pebble-watchface-boilerplate/master/config/index.html';
 
 	Pebble.openURL(url);
 });
