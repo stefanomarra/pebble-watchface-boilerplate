@@ -26,6 +26,8 @@ static GPath *s_minute_arrow;
 
 static bool b_show_hands       = true;
 static bool b_show_second_hand = true;
+static bool b_show_time        = true;
+static bool b_show_date 	   = true;
 static bool b_show_battery     = true;
 static bool b_show_bluetooth   = true;
 
@@ -203,6 +205,12 @@ static void handle_bluetooth(bool connected) {
 	APP_LOG(APP_LOG_LEVEL_INFO, "Bluetooth %sconnected", connected ? "" : "dis");
 }
 
+static void setup_window_background() {
+
+	// Set Window background color
+	window_set_background_color(s_main_window, gcolor_background);
+}
+
 static void setup_time_layers() {
 
 	// Get information about the Window
@@ -320,13 +328,78 @@ static void setup_hands_layer() {
 	layer_add_child(window_layer, s_hands_layer);
 }
 
+static void inbox_received_handler(DictionaryIterator *iter, void *context) {
+
+	Tuple *color_background_t = dict_find(iter, KEY_COLOR_BACKGROUND);
+	if (color_background_t) {
+		gcolor_background = GColorFromHEX(color_background_t->value->int32);
+		setup_window_background();
+		persist_write_int(KEY_COLOR_BACKGROUND, color_background_t->value->int32);
+	}
+
+	Tuple *color_time_t = dict_find(iter, KEY_COLOR_TIME);
+	if (color_time_t) {
+		gcolor_time = GColorFromHEX(color_time_t->value->int32);
+		persist_write_int(KEY_COLOR_TIME, color_time_t->value->int32);
+	}
+
+	Tuple *color_date_t = dict_find(iter, KEY_COLOR_DATE);
+	if (color_date_t) {
+		gcolor_date = GColorFromHEX(color_date_t->value->int32);
+		persist_write_int(KEY_COLOR_DATE, color_date_t->value->int32);
+	}
+
+	Tuple *color_hour_hand_t = dict_find(iter, KEY_COLOR_HOUR_HAND);
+	if (color_hour_hand_t) {
+		gcolor_hour_hand = GColorFromHEX(color_hour_hand_t->value->int32);
+		persist_write_int(KEY_COLOR_HOUR_HAND, color_hour_hand_t->value->int32);
+	}
+
+	Tuple *color_minute_hand_t = dict_find(iter, KEY_COLOR_MINUTE_HAND);
+	if (color_minute_hand_t) {
+		gcolor_minute_hand = GColorFromHEX(color_minute_hand_t->value->int32);
+		persist_write_int(KEY_COLOR_MINUTE_HAND, color_minute_hand_t->value->int32);
+	}
+
+	Tuple *color_second_t = dict_find(iter, KEY_COLOR_SECOND_HAND);
+	if (color_second_t) {
+		gcolor_second_hand = GColorFromHEX(color_second_t->value->int32);
+		persist_write_int(KEY_COLOR_SECOND_HAND, color_second_t->value->int32);
+	}
+
+
+	Tuple *show_hands_t = dict_find(iter, KEY_SHOW_HANDS);
+	if (show_hands_t) {
+		b_show_hands = show_hands_t->value->uint8;
+		persist_write_int(KEY_SHOW_HANDS, b_show_hands);
+	}
+
+	Tuple *show_second_hand_t = dict_find(iter, KEY_SHOW_SECOND_HAND);
+	if (show_second_hand_t) {
+		b_show_second_hand = show_second_hand_t->value->uint8;
+		persist_write_int(KEY_SHOW_SECOND_HAND, b_show_second_hand);
+	}
+
+	Tuple *show_time_t = dict_find(iter, KEY_SHOW_TIME);
+	if (show_time_t) {
+		b_show_time = show_time_t->value->uint8;
+		persist_write_int(KEY_SHOW_HANDS, b_show_time);
+	}
+
+	Tuple *show_date_t = dict_find(iter, KEY_SHOW_DATE);
+	if (show_date_t) {
+		b_show_date = show_date_t->value->uint8;
+		persist_write_int(KEY_SHOW_DATE, b_show_date);
+	}
+}
+
 static void main_window_load(Window *window) {
 
 	// Load persisted values from localstorage
 	load_persisted_values();
 
-	// Set Window background color
-	window_set_background_color(window, gcolor_background);
+	// Setup background color
+	setup_window_background();
 
 	// Setup layers
 	setup_time_layers();
@@ -347,6 +420,10 @@ static void main_window_load(Window *window) {
 			.pebble_app_connection_handler = handle_bluetooth
 		});
 	}
+
+	// Register Inbox Handler
+	app_message_register_inbox_received(inbox_received_handler);
+	app_message_open(64, 64);
 }
 
 static void main_window_unload(Window *window) {
