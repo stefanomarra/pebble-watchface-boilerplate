@@ -423,7 +423,7 @@ static void main_window_load(Window *window) {
 
 	// Register Inbox Handler
 	app_message_register_inbox_received(inbox_received_handler);
-	app_message_open(64, 64);
+	app_message_open(128, 128);
 }
 
 static void main_window_unload(Window *window) {
