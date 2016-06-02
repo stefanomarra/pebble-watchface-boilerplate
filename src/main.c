@@ -105,6 +105,9 @@ static void update_time() {
 	static char time_text[10];
 	strftime(time_text, sizeof(time_text), clock_is_24h_style() ? "%H:%M" : "%I:%M", tick_time);
 
+	// Set time text color
+	text_layer_set_text_color(s_time_layer, gcolor_time);
+
 	// Display this time on the TextLayer
 	text_layer_set_text(s_time_layer, time_text);
 }
@@ -117,6 +120,9 @@ static void update_date() {
 	// Write the current date into a buffer
 	static char date_text[16];
 	strftime(date_text, sizeof(date_text), "%a %d %b", tick_time);
+
+	// Set time date color
+	text_layer_set_text_color(s_date_layer, gcolor_date);
 
 	// Display this date on the TextLayer
 	text_layer_set_text(s_date_layer, date_text);
@@ -162,11 +168,11 @@ static void update_hands_proc(Layer *layer, GContext *ctx) {
 		}
 
 		// Draw the dot in the middle
-		graphics_context_set_fill_color(ctx, GColorRed);
+		graphics_context_set_fill_color(ctx, gcolor_hour_hand);
 		graphics_fill_circle(ctx, GPoint(bounds.size.w / 2, bounds.size.h / 2), 4);
 
 		// Draw the dot stroke
-		graphics_context_set_stroke_color(ctx, GColorBlack);
+		graphics_context_set_stroke_color(ctx, gcolor_background);
 		graphics_context_set_stroke_width(ctx, 2);
 		graphics_draw_circle(ctx, GPoint(bounds.size.w / 2, bounds.size.h / 2), 6);
 	}
