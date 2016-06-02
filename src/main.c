@@ -143,31 +143,33 @@ static void update_hands_proc(Layer *layer, GContext *ctx) {
 		.y = (int16_t)(-cos_lookup(second_angle_tail) * (int32_t)second_hand_tail_length / TRIG_MAX_RATIO) + center.y,
 	};
 
-	// Minute hand
-	graphics_context_set_fill_color(ctx, gcolor_minute_hand);
-	gpath_rotate_to(s_minute_arrow, TRIG_MAX_ANGLE * t->tm_min / 60);
-	gpath_draw_filled(ctx, s_minute_arrow);
+	if (b_show_hands) {
+		// Minute hand
+		graphics_context_set_fill_color(ctx, gcolor_minute_hand);
+		gpath_rotate_to(s_minute_arrow, TRIG_MAX_ANGLE * t->tm_min / 60);
+		gpath_draw_filled(ctx, s_minute_arrow);
 
-	// Hour hand
-	graphics_context_set_fill_color(ctx, gcolor_hour_hand);
-	gpath_rotate_to(s_hour_arrow, (TRIG_MAX_ANGLE * (((t->tm_hour % 12) * 6) + (t->tm_min / 10))) / (12 * 6));
-	gpath_draw_filled(ctx, s_hour_arrow);
+		// Hour hand
+		graphics_context_set_fill_color(ctx, gcolor_hour_hand);
+		gpath_rotate_to(s_hour_arrow, (TRIG_MAX_ANGLE * (((t->tm_hour % 12) * 6) + (t->tm_min / 10))) / (12 * 6));
+		gpath_draw_filled(ctx, s_hour_arrow);
 
-	// Second hand
-	if (b_show_second_hand) {
-		graphics_context_set_stroke_color(ctx, gcolor_second_hand);
-		graphics_draw_line(ctx, second_hand, center);
-		graphics_draw_line(ctx, second_hand_tail, center);
+		// Second hand
+		if (b_show_second_hand) {
+			graphics_context_set_stroke_color(ctx, gcolor_second_hand);
+			graphics_draw_line(ctx, second_hand, center);
+			graphics_draw_line(ctx, second_hand_tail, center);
+		}
+
+		// Draw the dot in the middle
+		graphics_context_set_fill_color(ctx, GColorRed);
+		graphics_fill_circle(ctx, GPoint(bounds.size.w / 2, bounds.size.h / 2), 4);
+
+		// Draw the dot stroke
+		graphics_context_set_stroke_color(ctx, GColorBlack);
+		graphics_context_set_stroke_width(ctx, 2);
+		graphics_draw_circle(ctx, GPoint(bounds.size.w / 2, bounds.size.h / 2), 6);
 	}
-
-	// Draw the dot in the middle
-	graphics_context_set_fill_color(ctx, GColorRed);
-	graphics_fill_circle(ctx, GPoint(bounds.size.w / 2, bounds.size.h / 2), 4);
-
-	// Draw the dot stroke
-	graphics_context_set_stroke_color(ctx, GColorBlack);
-	graphics_context_set_stroke_width(ctx, 2);
-	graphics_draw_circle(ctx, GPoint(bounds.size.w / 2, bounds.size.h / 2), 6);
 }
 
 static void handle_second_tick(struct tm *tick_time, TimeUnits units_changed) {
