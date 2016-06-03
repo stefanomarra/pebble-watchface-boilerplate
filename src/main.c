@@ -106,7 +106,12 @@ static void update_time() {
 	strftime(time_text, sizeof(time_text), clock_is_24h_style() ? "%H:%M" : "%I:%M", tick_time);
 
 	// Set time text color
-	text_layer_set_text_color(s_time_layer, gcolor_time);
+	if (b_show_time) {
+		text_layer_set_text_color(s_time_layer, gcolor_time);
+	}
+	else {
+		text_layer_set_text_color(s_time_layer, GColorClear);
+	}
 
 	// Display this time on the TextLayer
 	text_layer_set_text(s_time_layer, time_text);
@@ -122,7 +127,12 @@ static void update_date() {
 	strftime(date_text, sizeof(date_text), "%a %d %b", tick_time);
 
 	// Set time date color
-	text_layer_set_text_color(s_date_layer, gcolor_date);
+	if (b_show_date) {
+		text_layer_set_text_color(s_date_layer, gcolor_date);
+	}
+	else {
+		text_layer_set_text_color(s_date_layer, GColorClear);
+	}
 
 	// Display this date on the TextLayer
 	text_layer_set_text(s_date_layer, date_text);
