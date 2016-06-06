@@ -93,6 +93,26 @@ static void load_persisted_values() {
 	else {
 		gcolor_second_hand = GColorRed;
 	}
+
+	// Show Hands
+	if (persist_exists(KEY_SHOW_HANDS)) {
+		b_show_hands = persist_read_int(KEY_SHOW_HANDS);
+	}
+
+	// Show Second Hands
+	if (persist_exists(KEY_SHOW_SECOND_HAND)) {
+		b_show_second_hand = persist_read_int(KEY_SHOW_SECOND_HAND);
+	}
+
+	// Show Time
+	if (persist_exists(KEY_SHOW_TIME)) {
+		b_show_time = persist_read_bool(KEY_SHOW_TIME);
+	}
+
+	// Show Date
+	if (persist_exists(KEY_SHOW_DATE)) {
+		b_show_date = persist_read_bool(KEY_SHOW_DATE);
+	}
 }
 
 static void update_time() {
@@ -401,7 +421,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 	Tuple *show_time_t = dict_find(iter, KEY_SHOW_TIME);
 	if (show_time_t) {
 		b_show_time = show_time_t->value->uint8;
-		persist_write_int(KEY_SHOW_HANDS, b_show_time);
+		persist_write_int(KEY_SHOW_TIME, b_show_time);
 	}
 
 	Tuple *show_date_t = dict_find(iter, KEY_SHOW_DATE);
